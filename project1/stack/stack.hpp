@@ -33,8 +33,8 @@ class Stack{
 
 template <typename T>
 bool Stack<T>::isEmpty() const{
-    //TODO
     return true;
+    
 }
 
 template <typename T>
