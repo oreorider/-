@@ -1,5 +1,7 @@
 #include <iostream>
 
+using namespace std;
+
 template <typename T>
 struct Item{
     T value;
@@ -13,6 +15,7 @@ class Queue{
         int rear;
         bool empty;
         int size;
+        bool verbose;
         Item<T> *array;
 
     public:
@@ -22,17 +25,24 @@ class Queue{
             rear = _size - 1;
             empty = true;
             size = _size;
+            verbose = false;
             array = new Item<T>[_size];
         }
         ~Queue(){
             delete[] array;
         }
-
+        
+        void setverbose();
         void enqueue(const T& value, int priority);
         int top();
         T dequeue();        
         bool isFull();
 };
+
+template <typename T>
+void Queue<T>::setverbose(){
+    verbose = true;
+}
 
 template <typename T>
 void Queue<T>::enqueue(const T& value, int priority){
@@ -41,7 +51,9 @@ void Queue<T>::enqueue(const T& value, int priority){
         array[front] = add_item;
         rear=front;
         empty = false;
-        
+        if(verbose){
+            cout<<"adding value: "<<value<<", priority "<<priority<<" to index "<<front<<endl;
+        }
     }
     else if(isFull()){//if array is full
         auto new_array = new Item<T>[size*2];
@@ -54,12 +66,18 @@ void Queue<T>::enqueue(const T& value, int priority){
             new_array[a] = array[i];
             a+=1;
         }
+        if(verbose){
+            cout<<"doubled size of array because full"<<endl;
+        }
         front = 0;
-        rear = size+1;//increment rear so can add to rear easier later
+        rear = size;//rear incremented from size-1 to "size"
         size = size*2;//increase size
         delete[] array;
         array = new_array;
         array[rear] = add_item;
+        if(verbose){
+            cout<<"adding value: "<<value<<", priority "<<priority<<" to index "<<rear<<endl;
+        }
     }
     else{//if array not empty, not full
         if(rear == size-1){//if rear is at the end of array
@@ -67,8 +85,11 @@ void Queue<T>::enqueue(const T& value, int priority){
             rear=0;
         }
         else{
-            array[rear] = add_item;
             rear+=1;
+            array[rear] = add_item;
+        }
+        if (verbose){
+            cout<<"adding value: "<<value<<", priority "<<priority<<" to index "<<rear<<endl;
         }
     }
     return;
@@ -76,20 +97,31 @@ void Queue<T>::enqueue(const T& value, int priority){
 
 template <typename T>
 int Queue<T>::top(){
-    if(empty){return -99999;}
+    if(empty){throw underflow_error("queue is empty");}
 
     int highest_prio = 0;
     int index = 0;
-    for(int i=front; i<size-1; i++){
-        if(array[i].priority > highest_prio){//if prio of array element higher than previous highest
-            highest_prio = array[i].priority;
-            index = i;
+    if(front == rear) return front; //if only one elemnt in array
+    if(front > rear){//if flipped
+        for(int i=front; i<size; i++){
+            if(array[i].priority > highest_prio){//if prio of array element higher than previous highest
+                highest_prio = array[i].priority;
+                index = i;
+            }
+        }
+        for(int i=0; i<rear; i++){
+            if(array[i].priority > highest_prio){
+                highest_prio = array[i].priority;
+                index = i;
+            }
         }
     }
-    for(int i=0; i<rear; i++){
-        if(array[i].priority > highest_prio){
-            highest_prio = array[i].priority;
-            index = i;
+    if(rear > front){//if normal
+        for(int i=front; i<=rear; i++){
+            if(array[i].priority > highest_prio){
+                highest_prio = array[i].priority;
+                index = i;
+            }
         }
     }
     //TODO
@@ -101,8 +133,10 @@ template <typename T>
 T Queue<T>::dequeue(){
     //TODO
     int pop_index = top();
+    Item<T> nullitem{-1, -1};
     T returnvalue = array[pop_index].value; 
     if(pop_index == rear){//if pop index is last index of queue
+        array[pop_index] = nullitem; //for debugging purposes
         rear-=1;
     }
     else{//if not, must allign again
@@ -114,13 +148,15 @@ T Queue<T>::dequeue(){
             for(int i=front; i<size-1; i++){//move "back" part back one
                 array[i+1] = array[i];
             }
+            array[front] = nullitem;//for debugging
             front +=1;
         }
         else if(rear > front){//if rear behind front (normal case) 
-            for(int i=0; i<pop_index; i++){
+            for(int i=front; i<pop_index; i++){
                 array[i+1] = array[i];
-                front+=1;
             }
+            array[front] = nullitem;
+            front+=1;
         }
     }
     return returnvalue;
@@ -129,6 +165,7 @@ T Queue<T>::dequeue(){
 template <typename T>
 bool Queue<T>::isFull(){
     //TODO
+    if(empty) return false;
     if((front-1==rear) || (front==0 && rear==size-1)) return true;
     return false;
 }
