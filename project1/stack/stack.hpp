@@ -55,8 +55,10 @@ T Stack<T>::top() const{
 
 template <typename T>
 T Stack<T>::pop(){
+    cout<<"pop"<<endl;
     if(isEmpty()){
-        throw underflow_error("stack is emtpy");
+        cout<<"empty"<<endl;
+        //throw underflow_error("stack is emtpy");
     }
     auto returnValue = array[current];
     current-=1;
@@ -67,7 +69,7 @@ template <typename T>
 void Stack<T>::push(const T& item){
     //TODO
     if(isFull()){ //if stack is full, double size, then push
-        auto new_array = new Item<T>[size*2];
+        auto new_array = new T[size*2];
         for(int i=0; i<size;i++){
             new_array[i] = array[i];//copy elements over
         }
