@@ -99,7 +99,7 @@ template <typename T>
 int Queue<T>::top(){
     if(empty){throw underflow_error("queue is empty");}
 
-    int highest_prio = 0;
+    int highest_prio = -9999;
     int index = 0;
     if(front == rear) return front; //if only one elemnt in array
     if(front > rear){//if flipped
@@ -133,7 +133,7 @@ template <typename T>
 T Queue<T>::dequeue(){
     //TODO
     int pop_index = top();
-    Item<T> nullitem{-1, -1};
+    Item<T> nullitem{NULL, -999};
     T returnvalue = array[pop_index].value; 
     if(pop_index == rear){//if pop index is last index of queue
         array[pop_index] = nullitem; //for debugging purposes

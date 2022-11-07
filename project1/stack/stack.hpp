@@ -55,12 +55,14 @@ T Stack<T>::top() const{
 
 template <typename T>
 T Stack<T>::pop(){
-    cout<<"pop"<<endl;
+    
     if(isEmpty()){
         cout<<"empty"<<endl;
-        //throw underflow_error("stack is emtpy");
+        throw underflow_error("stack is emtpy");
     }
     auto returnValue = array[current];
+    array[current] = NULL;
+    //cout<<"popping from index "<<current<<endl;
     current-=1;
     return returnValue;
 }
@@ -69,6 +71,7 @@ template <typename T>
 void Stack<T>::push(const T& item){
     //TODO
     if(isFull()){ //if stack is full, double size, then push
+        cout<<"stack full, doubling and adding"<<endl;
         auto new_array = new T[size*2];
         for(int i=0; i<size;i++){
             new_array[i] = array[i];//copy elements over
@@ -86,5 +89,6 @@ void Stack<T>::push(const T& item){
     return;
 }
 
+string infix_to_postfix(const string &line);
 bool checkParentheses(const string& line, const vector<pair<char,char>>& pairs);
 float calculate(const string& line);
