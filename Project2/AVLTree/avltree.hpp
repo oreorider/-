@@ -95,42 +95,109 @@ bool AVLTree<T,U>::remove(const T& key) {
 }
 
 template<typename T, typename U>
-AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){
+AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of impalanced node as parameter
     //TODO    
+    AVLNode<T,U> *y = node->right;
+    AVLNode<T,U> *T2 = y->left;
 
+    y->left = node;
+    node->right = T2;
 
+    node->height = max(getHeight(node->left), getHeight(node->right))+1;
+    y->height = max(getHeight(y->left), getHeight(y->right))+1;
+
+    return y;
 }
 
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::rotate_right(AVLNode<T,U>*& node){
     //TODO
+    AVLNode<T,U> *x = node->left;
+    AVLNode<T,U> *T2 = x->right;
 
+    x->right = node;
+    node->left = T2;
 
+    node->height = max(getHeight(node->left), getHeight(node->right))+1;
+    x->height = max(getHeight(x->left), getHeight(x->right))+1;
+
+    return x;
 }
 
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::insert(AVLNode<T,U>*& node, const T& key, const U& value) {
     //TODO
-    
-    //right-left
+    if (node == NULL){
+        return AVLNode<T,U>(key, value);
+    }
+    if(key < node->key){
+        node->left = insert(node->left, key, value);
+    }
+    else if(key > node->key){
+        node->right = insert(node->right, key, value);
+    }
+    else{
+        node->value = value;//update value
+        return node;
+    }
 
-    //right-right
-    
-    //left-right
-   
-    //right-left
+    node->height = max(getHeight(node->left), getHeight(node->right))+1;
+
+    int balance = getBalance(node);
+    //left left
+    if(balance > 1 && key < node->left->key){
+        return rotate_right(node);
+    }
+
+    //right right
+    if(balance < -1 && key > node->right->key){
+        return rotate_left(node);
+    }
+
+    //left right
+    if(balance > 1 && key > node->left->key){
+        node->left = rotate_left(node->left);//rotate left once
+        return rotate_right(node);//then rotate right
+    }
+
+    //right left
+    if(balance < -1 && key < node->right->key){
+        node->right = rotate_right(node->right);
+        return rotate_right(node);
+    }
+
+    //if no need for updates, just return the ndoe
+    return node;
 }
 
 template<typename T, typename U>
 U AVLTree<T,U>::search(AVLNode<T,U>*& node, const T& key) {
     //TODO
     //return NULL if there are no such key, return value if there is
+    if(node == NULL) return NULL;//value not found
+    
+    if(node->key == key) return node->value;//value found
 
+    if(key < node->key) return search(node->left, key);//go to left tree
+
+    if(key > node->key) return search(node->right, key);//go to right tree
 }
 
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
     //TODO
+    if(search(node, key) == NULL) return node;//if key not in tree, just return root
+
+    if(node->left == nullptr && node->right == nullptr){//if leaf just delete
+        delete node;
+    }
+
+    T max_key;
+    U max_value;
+    bool max_found = 0;
+    while(max_found == 0){
+        
+    }
 }
 
 template<typename T, typename U>
@@ -140,4 +207,4 @@ void AVLTree<T,U>::removeall(AVLNode<T,U>*& node) {
         
     }
     
-}
+
