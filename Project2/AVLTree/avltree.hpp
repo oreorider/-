@@ -100,6 +100,7 @@ bool AVLTree<T,U>::remove(const T& key) {
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of impalanced node as parameter
     //TODO    
+    cout<<"rotate left"<<endl;
     AVLNode<T,U> *y = node->right;
     AVLNode<T,U> *T2 = y->left;
 
@@ -115,6 +116,7 @@ AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of impala
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::rotate_right(AVLNode<T,U>*& node){
     //TODO
+    cout<<"rotate right"<<endl;
     AVLNode<T,U> *x = node->left;
     AVLNode<T,U> *T2 = x->right;
 
@@ -199,6 +201,32 @@ AVLNode<T,U> *maxNode(AVLNode<T,U>*&node){
 }
 
 template<typename T, typename U>
+void printBT(const std::string& prefix, const AVLNode<T,U>* node, bool isLeft)
+{
+    if( node != nullptr )
+    {
+        std::cout << prefix;
+
+        std::cout << (isLeft ? "├──" : "└──" );
+
+        // print the value of the node
+        std::cout << node->key << std::endl;
+
+        // enter the next tree level - left and right branch
+        printBT( prefix + (isLeft ? "│   " : "    "), node->left, true);
+        printBT( prefix + (isLeft ? "│   " : "    "), node->right, false);
+    }
+}
+
+template<typename T, typename U>
+void printBT(const AVLNode<T,U>* node)
+{
+    printBT("", node, false);    
+}
+
+// pass the root node of your binary tree
+
+template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
     if(node == nullptr) return node;
 
@@ -212,7 +240,10 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             node = nullptr;
         }
         else if(node->left == nullptr || node->right == nullptr){//if one child
+            cout<<"removing node with 1 child"<<endl;
+            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             temp = node->left !=nullptr ? node->left : node->right;//if left is not null, set temp as left and vice versa
+            
 
             node->key = temp->key;//copy values
             node->value = temp->value;
@@ -223,7 +254,10 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             delete temp;
         }
         else{//if two children
+            cout<<"removing node with 2 children"<<endl;
+            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             AVLNode<T,U> *max_left_node = maxNode(node->left);//largest of left subtree
+
             node->key = max_left_node->key;
             node->value = max_left_node->value;
             
@@ -231,7 +265,7 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             //max_left_node = max_left_node->left;
             //auto __ = remove(node->left, max_left_node->key);//recursiely call remove function
             node->left = remove(node->left, max_left_node->key);
-            cout<<"replaced"<<endl;
+            
         }
 
     }
@@ -245,22 +279,26 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
     int balance = getBalance(node);
     //left left
     if(balance > 1 && key < node->left->key){
+        //cout<<"rotate left left"<<endl;
         return rotate_right(node);
     }
 
     //right right
     if(balance < -1 && key > node->right->key){
+        //cout<<"rotate right right"<<endl;
         return rotate_left(node);
     }
 
     //left right
     if(balance > 1 && key > node->left->key){
+        //cout<<"rotate left right"<<endl;
         node->left = rotate_left(node->left);//rotate left once
         return rotate_right(node);//then rotate right
     }
 
     //right left
     if(balance < -1 && key < node->right->key){
+        //cout<<"rotate right left"<<endl;
         node->right = rotate_right(node->right);
         return rotate_left(node);
     }

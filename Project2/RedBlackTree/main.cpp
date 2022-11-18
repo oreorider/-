@@ -5,7 +5,7 @@
 #include <time.h>
 #include <string>
 
-#include "RBtree.h"
+#include "RBtree.hpp"
 #include <iostream>
 
 using namespace std;

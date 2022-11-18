@@ -20,7 +20,7 @@ int main () {
     cout<<"<< AVL tree >>"<<endl<<endl;
 
     start_insert_remove = clock();
-   
+    
     tree.insert(16545, "yeonnamdong");
     tree.insert(54312, "sinsadong");
     
@@ -35,6 +35,29 @@ int main () {
     tree.insert(51211, "banghwadong");
     
     tree.remove(11243);
+    
+    for(int i=0; i<20; i++){
+        char insert = 'A' + i;
+        tree.insert(i, std::string(1, insert));
+        //if(i%5 == 0) tree.inorder(tree.root);
+    }
+    printBT(tree.root);
+    
+    //tree.inorder(tree.root);
+    cout<<"remove 5"<<endl;
+    tree.remove(5);
+    printBT(tree.root);
+    
+    tree.inorder(tree.root);
+    cout<<"remove 4"<<endl;
+    tree.remove(4);
+    printBT(tree.root);
+    tree.inorder(tree.root);
+    cout<<"remove 3"<<endl;
+    tree.remove(3);
+    printBT(tree.root);
+    tree.inorder(tree.root);
+    
     
     finish_insert_remove = clock();
 
@@ -51,11 +74,13 @@ int main () {
 
     cout<<"print search"<<endl;
     cout<<"_________________________"<<endl;
+    /*
     cout<<"search 54155: "<<tree.search(54155)<<endl;
     //print 0 if none
     cout<<"search 54312:"<<tree.search(54312)<<endl;
     cout<<"search 12345:"<<tree.search(12345)<<endl;
     cout<<"search 11243:"<<tree.search(11243)<<endl; //removed
+    */
 
     finish_search = clock();
    
