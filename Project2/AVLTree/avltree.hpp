@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <optional>
 #include <unistd.h>
+#include <string.h>
+
+using namespace std;
 
 template <typename T, typename U>
 class AVLNode{
@@ -128,7 +131,8 @@ template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::insert(AVLNode<T,U>*& node, const T& key, const U& value) {
     //TODO
     if (node == NULL){
-        return AVLNode<T,U>(key, value);
+        AVLNode<T,U> *newNode = new AVLNode<T,U>(key, value);
+        return newNode;
     }
     if(key < node->key){
         node->left = insert(node->left, key, value);
@@ -163,7 +167,7 @@ AVLNode<T,U>* AVLTree<T,U>::insert(AVLNode<T,U>*& node, const T& key, const U& v
     //right left
     if(balance < -1 && key < node->right->key){
         node->right = rotate_right(node->right);
-        return rotate_right(node);
+        return rotate_left(node);
     }
 
     //if no need for updates, just return the ndoe
@@ -174,37 +178,117 @@ template<typename T, typename U>
 U AVLTree<T,U>::search(AVLNode<T,U>*& node, const T& key) {
     //TODO
     //return NULL if there are no such key, return value if there is
-    if(node == NULL) return NULL;//value not found
+    if(node == NULL) return "";//value not found
     
-    if(node->key == key) return node->value;//value found
-
+    if(node->key == key) {//value found
+        cout<<"key : "<<key<<" found"<<endl;
+        return node->value;
+    }
     if(key < node->key) return search(node->left, key);//go to left tree
 
     if(key > node->key) return search(node->right, key);//go to right tree
 }
 
 template<typename T, typename U>
+AVLNode<T,U> *maxNode(AVLNode<T,U>*&node){
+    AVLNode<T,U> *current = node;
+    while(current->right != nullptr){
+        current = current->right;
+    }
+    return current;
+}
+
+template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
-    //TODO
-    if(search(node, key) == NULL) return node;//if key not in tree, just return root
+    if(node == nullptr) return node;
 
-    if(node->left == nullptr && node->right == nullptr){//if leaf just delete
-        delete node;
+    if(key < node->key) node->left = remove(node->left, key);//go left
+    if(key > node->key) node->right = remove(node->right, key);//go right
+
+    if(key == node->key){
+        AVLNode<T,U> *temp;
+        if(node->left == nullptr && node->right == nullptr){//if leaf node
+            temp = node;
+            node = nullptr;
+        }
+        else if(node->left == nullptr || node->right == nullptr){//if one child
+            temp = node->left !=nullptr ? node->left : node->right;//if left is not null, set temp as left and vice versa
+
+            node->key = temp->key;//copy values
+            node->value = temp->value;
+
+            node->left = temp->left;//move children pointers
+            node->right = temp->right;
+
+            delete temp;
+        }
+        else{//if two children
+            AVLNode<T,U> *max_left_node = maxNode(node->left);//largest of left subtree
+            node->key = max_left_node->key;
+            node->value = max_left_node->value;
+            
+            //delete maxleftnode by overwriting it with its left child
+            //max_left_node = max_left_node->left;
+            //auto __ = remove(node->left, max_left_node->key);//recursiely call remove function
+            node->left = remove(node->left, max_left_node->key);
+            cout<<"replaced"<<endl;
+        }
+
+    }
+    if(node == nullptr){//if removed the only node in tree
+        return nullptr;
     }
 
-    T max_key;
-    U max_value;
-    bool max_found = 0;
-    while(max_found == 0){
-        
+    //balance the tree after remoe
+    node->height = max(getHeight(node->left), getHeight(node->right))+1;
+
+    int balance = getBalance(node);
+    //left left
+    if(balance > 1 && key < node->left->key){
+        return rotate_right(node);
     }
+
+    //right right
+    if(balance < -1 && key > node->right->key){
+        return rotate_left(node);
+    }
+
+    //left right
+    if(balance > 1 && key > node->left->key){
+        node->left = rotate_left(node->left);//rotate left once
+        return rotate_right(node);//then rotate right
+    }
+
+    //right left
+    if(balance < -1 && key < node->right->key){
+        node->right = rotate_right(node->right);
+        return rotate_left(node);
+    }
+
+    //if no need for updates, just return the ndoe
+    return node;
 }
 
 template<typename T, typename U>
 void AVLTree<T,U>::removeall(AVLNode<T,U>*& node) {
     //TODO
     //for destructor
-        
+    if(node->left == nullptr && node->right == nullptr){//leaf node
+        delete node;
+        return;
+    } 
+    if(node->left == nullptr && node->right !=nullptr){//only right child
+        return removeall(node->right);
     }
+    if(node->left !=nullptr && node->right == nullptr){//only left child
+        return removeall(node->left);
+    }
+    if(node->left !=nullptr && node->right !=nullptr){//two children
+        removeall(node->left);
+        removeall(node->right);
+        return;
+    }
+        
+}
     
 

@@ -31,7 +31,7 @@ int main () {
     tree.insert(33450, "dobongdong");
     tree.insert(25234, "samseongdong");    
     tree.remove(54312);
-    tree.insert(54155, "gurodong");
+    tree.insert(59155, "gurodong");
     tree.insert(51211, "banghwadong");
     
     tree.remove(11243);
@@ -53,6 +53,7 @@ int main () {
     cout<<"_________________________"<<endl;
     cout<<"search 54155: "<<tree.search(54155)<<endl;
     //print 0 if none
+    cout<<"search 54312:"<<tree.search(54312)<<endl;
     cout<<"search 12345:"<<tree.search(12345)<<endl;
     cout<<"search 11243:"<<tree.search(11243)<<endl; //removed
 
