@@ -53,6 +53,7 @@ int main () {
     tree.remove(4);
     printBT(tree.root);
     tree.inorder(tree.root);
+
     cout<<"remove 3"<<endl;
     tree.remove(3);
     printBT(tree.root);
@@ -68,6 +69,8 @@ int main () {
     cout<<"print preorder"<<endl;
     cout<<"_________________________"<<endl;
     tree.preorder(tree.root);
+    cout<<"tree diagram\n"<<endl;
+    printBT(tree.root);
     cout<<endl;
 
     start_search = clock();

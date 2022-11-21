@@ -278,26 +278,26 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
 
     int balance = getBalance(node);
     //left left
-    if(balance > 1 && key < node->left->key){
+    if(balance > 1 && getBalance(node->left) >= 0){
         //cout<<"rotate left left"<<endl;
         return rotate_right(node);
     }
 
     //right right
-    if(balance < -1 && key > node->right->key){
+    if(balance < -1 && getBalance(node->right) <= 0){
         //cout<<"rotate right right"<<endl;
         return rotate_left(node);
     }
 
     //left right
-    if(balance > 1 && key > node->left->key){
+    if(balance > 1 && getBalance(node->left) < 0){
         //cout<<"rotate left right"<<endl;
         node->left = rotate_left(node->left);//rotate left once
         return rotate_right(node);//then rotate right
     }
 
     //right left
-    if(balance < -1 && key < node->right->key){
+    if(balance < -1 && getBalance(node->right) > 0){
         //cout<<"rotate right left"<<endl;
         node->right = rotate_right(node->right);
         return rotate_left(node);
