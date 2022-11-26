@@ -5,6 +5,7 @@
 
 #define RED 1
 #define BLACK 0
+#define DOUBLEBLACK 2
 
 template <typename T, typename U>
 class RBNode{
@@ -126,6 +127,65 @@ RBNode<T,U>* RBTree<T,U>::rotate_right(RBNode<T,U>*& node){
     return x;
 }
 
+template<typename T, typename U>
+int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
+    bool sibling_left_child, sibilng_right_child;
+    if(node->left !=nullptr && node->right !=nullptr){//if left and right children exist
+        //consider case where before doubleblack actually made nullptr
+
+        //doubleblack on right, black sibling on left
+        if(node->right->color == DOUBLEBLACK && node->left->color == BLACK){
+            if(node->left->left !=nullptr) sibling_left_child = true;
+            if(node->left->right !=nullptr) sibilng_right_child = true;
+
+            //if sibling has red children only
+            //if sibling has black children only
+
+            //case 1
+            if((sibling_left_child && sibilng_right_child && node->left->left->color == RED && node->left->right->color == RED) ||
+            sibling_left_child && !sibilng_right_child && node->left->left->color == RED ||
+            sibilng_right_child && !sibling_left_child && node->left->right->color == RED){
+                //only red children in sibling side
+                if(sibling_left_child && sibilng_right_child){
+                    return 1;//sibling child both red, do LL
+                }
+                if(sibling_left_child && !sibilng_right_child){
+                    return 2;//sibling only have left red child, do LL
+                }
+                if(!sibling_left_child && sibilng_right_child){
+                    return 3;//sibling only have right red child, do LR
+                }
+            }
+            else{
+                //sibling has black children
+                
+            }
+
+            
+        }
+        if(node->left->color == DOUBLEBLACK && node->right->color == BLACK){//doubleblack on left
+            if(node->right->left !=nullptr || node->right->right !=nullptr){
+                //case 1, requires RR or RL rotation
+            }
+        }
+
+        //case2
+        if(node->right->color == DOUBLEBLACK && node->color == RED){//doubleblack RIGHT
+            if(node->left->left == nullptr && node->left->right == nullptr){//sibling has no children
+                //case 2, swap parent and sibling color
+            }
+        }
+        if(node->left->color == DOUBLEBLACK && node->color == RED){//doubleblack LEFT
+            if(node->right->right == nullptr && node->right->right == nullptr){//right sibling no children
+                //case2, swap parent ad sibling color
+            }
+        }
+
+
+    }
+
+   
+}
 
 template<typename T, typename U>
 int RB_tree_violated(RBNode<T,U>*& node){//fixes two reds in a row
