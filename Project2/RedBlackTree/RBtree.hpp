@@ -6,6 +6,7 @@
 #define RED 1
 #define BLACK 0
 #define DOUBLEBLACK 2
+#define REMOVE 3
 
 template <typename T, typename U>
 class RBNode{
@@ -133,8 +134,8 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
     if(node->left !=nullptr && node->right !=nullptr){//if left and right children exist
         //consider case where before doubleblack actually made nullptr
 
-        //doubleblack on right, black sibling on left
-        if(node->right->color == DOUBLEBLACK && node->left->color == BLACK){
+        //doubleblack/remove on right, black sibling on left
+        if((node->right->color == DOUBLEBLACK || node->right->color == REMOVE) && node->left->color == BLACK){
             if(node->left->left !=nullptr) sibling_left_child = true;
             if(node->left->right !=nullptr) sibilng_right_child = true;
 
@@ -142,48 +143,62 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
             //if sibling has black children only
 
             //case 1
-            if((sibling_left_child && sibilng_right_child && node->left->left->color == RED && node->left->right->color == RED) ||
-            sibling_left_child && !sibilng_right_child && node->left->left->color == RED ||
-            sibilng_right_child && !sibling_left_child && node->left->right->color == RED){
-                //only red children in sibling side
-                if(sibling_left_child && sibilng_right_child){
-                    return 1;//sibling child both red, do LL
+            if(sibling_left_child && sibilng_right_child && node->left->left->color == RED && node->left->right->color == RED){
+                return 1;//LL
+            }
+            if(sibling_left_child && !sibilng_right_child && node->left->left->color == RED){
+                return 1; //LL
+            }
+            if(sibilng_right_child && !sibling_left_child && node->left->right->color == RED){
+                return 2; //LR
+            }
+            else{//black sibling has black children or no children, case 2
+                if(node->color == BLACK){//if parent is black, must do double black chaining
+                    return 4;
                 }
-                if(sibling_left_child && !sibilng_right_child){
-                    return 2;//sibling only have left red child, do LL
-                }
-                if(!sibling_left_child && sibilng_right_child){
-                    return 3;//sibling only have right red child, do LR
+                if(node->color == RED){
+                    return 5;
                 }
             }
-            else{
-                //sibling has black children
-                
-            }
+        }
+        
+        //doubleblack/remove on right, red sibling on left
+        if((node->right->color == DOUBLEBLACK || node->right->color == REMOVE) && node->left->color == RED){
+            return 8;
+        }
+        
+        //doubleblack/remove on left, black sibling on right
+        if((node->left->color == DOUBLEBLACK ||| node->left->color == REMOVE) && node->right->color == BLACK){//doubleblack on left
+            if(node->right->left != nullptr) sibling_left_child = true;
+            if(node->right->right != nullptr) sibilng_right_child = true;
 
-            
-        }
-        if(node->left->color == DOUBLEBLACK && node->right->color == BLACK){//doubleblack on left
-            if(node->right->left !=nullptr || node->right->right !=nullptr){
-                //case 1, requires RR or RL rotation
+            //case 1
+            if(sibling_left_child && sibilng_right_child && node->left->left->color == RED && node->left->right->color == RED){
+                return 3;//RR
+            }
+            if(sibling_left_child && !sibilng_right_child && node->left->left->color == RED){
+                return 4; //RL
+            }
+            if(sibilng_right_child && !sibling_left_child && node->left->right->color == RED){
+                return 3; //RR
+            }
+            else{//sibling has black children or no children, case 2
+                if(node->color == BLACK){
+                    return 6;
+                }
+                if(node->color == RED){
+                    return 7;
+                }
             }
         }
-
-        //case2
-        if(node->right->color == DOUBLEBLACK && node->color == RED){//doubleblack RIGHT
-            if(node->left->left == nullptr && node->left->right == nullptr){//sibling has no children
-                //case 2, swap parent and sibling color
-            }
+    
+        //doubleblack/remove on left, red sibling on right
+        if((node->left->color == DOUBLEBLACK || node->left->color == REMOVE) && node->right->color == RED){
+            return 9;
         }
-        if(node->left->color == DOUBLEBLACK && node->color == RED){//doubleblack LEFT
-            if(node->right->right == nullptr && node->right->right == nullptr){//right sibling no children
-                //case2, swap parent ad sibling color
-            }
-        }
-
 
     }
-
+    return 0;
    
 }
 
@@ -402,6 +417,7 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
         node->right->parent = node;
     }
     if(key == node->key){//node found
+        
         bool rightside, leftside = 0;
         RBNode<T,U> *parentNode = node->parent;
         RBNode<T,U> *siblingNode;  
@@ -415,21 +431,16 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
         }
 
         RBNode<T,U> *temp;
-        if(node->left == nullptr && node->right == nullptr && node->color == RED){//if red leaf node
-            temp = node;
-            node = nullptr;
-        }
-        if(node->left == nullptr && node->right == nullptr && node->color == BLACK){//if black leaf node
-            //case 1, leaf is on right side
-            if(siblingNode->color == BLACK && (siblingNode->left !=nullptr || siblingNode->right !=nullptr)){
-                if(rightside){
-                    return rotate_right(node->parent);
-                }
-                else if(leftside){
-                    return rotate_left(node->parent);
-                }
+        if(node->left == nullptr && node->right == nullptr){//if leaf node
+            if(node->color == RED){//red leaf node
+                temp = node;
+                node = nullptr;
+            }
+            else if(node->color == BLACK){//black leaf node
+                node->color == REMOVE;//set color to remove, and fix later
             }
         }
+        
         else if(node->left == nullptr || node->right == nullptr){//if one child, must be black node with red leaf
             cout<<"removing node with 1 child"<<endl;
             cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
@@ -478,6 +489,7 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
     }
     
     return node;
+    
 
 }
 
