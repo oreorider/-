@@ -3,6 +3,8 @@
 #include <optional>
 #include <unistd.h>
 
+using namespace std;
+
 #define RED 1
 #define BLACK 0
 #define DOUBLEBLACK 2
@@ -61,7 +63,7 @@ class RBTree {
     private :
         RBNode<T,U>* rotate_left(RBNode<T,U>*& node);
         RBNode<T,U>* rotate_right(RBNode<T,U>*& node);
-
+        RBNode<T,U>* resolve_doubleblack(RBNode<T,U>*& node);
         RBNode<T,U>* insert(RBNode<T,U>*& node, const T& key, const U& value);
         U search(RBNode<T,U>*& node, const T& key);
         RBNode<T,U>* remove(RBNode<T,U>*& node, const T& key);
@@ -101,7 +103,7 @@ RBNode<T,U>* RBTree<T,U>::rotate_left(RBNode<T,U>*& node){
     node->parent = y;
 
     node->right = T2;
-    T2->parent = node;
+    if(T2 != nullptr) T2->parent = node;
 
     //node->height = max(getHeight(node->left), getHeight(node->right))+1;
     //y->height = max(getHeight(y->left), getHeight(y->right))+1;
@@ -120,7 +122,7 @@ RBNode<T,U>* RBTree<T,U>::rotate_right(RBNode<T,U>*& node){
     node->parent = x;
 
     node->left = T2;
-    T2->parent = node;
+    if(T2 != nullptr) T2->parent = node;
 
     //node->height = max(getHeight(node->left), getHeight(node->right))+1;
     //x->height = max(getHeight(x->left), getHeight(x->right))+1;
@@ -168,7 +170,7 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
         }
         
         //doubleblack/remove on left, black sibling on right
-        if((node->left->color == DOUBLEBLACK ||| node->left->color == REMOVE) && node->right->color == BLACK){//doubleblack on left
+        if((node->left->color == DOUBLEBLACK || node->left->color == REMOVE) && node->right->color == BLACK){//doubleblack on left
             if(node->right->left != nullptr) sibling_left_child = true;
             if(node->right->right != nullptr) sibilng_right_child = true;
 
@@ -204,6 +206,7 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
 
 template<typename T, typename U>
 int RB_tree_violated(RBNode<T,U>*& node){//fixes two reds in a row
+    
     if(node->left!=nullptr && node->right!=nullptr){//two children exist
         if(node->left->color == RED && node->right->color==RED){//both children red
             //just need to swap colors to fix, and recurse up
@@ -257,14 +260,15 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
     //TODO
     if(node == NULL){
         RBNode<T,U> *newNode = new RBNode<T,U>(key, value);
-        if(node->parent != nullptr){
+        newNode->color = RED;
+        /*
+        if(newNode->parent != nullptr){
             newNode->color = RED;//if not root, make new node red
         }
         else{
             newNode->color = BLACK;//if root node being added, make black
         }
-        //fix_tree_after_insert(node);
-        //fixorientation(node);
+        */
         return newNode;
     }
     if(key < node->key){
@@ -279,13 +283,13 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
         node->value = value;//update value
         return node;
     }
-    RBNode<T,U> *uncleNode;
-    RBNode<T,U> *parentNode = node;
-    RBnode<T,U> *grandNode = node->parent;
+    //RBNode<T,U> *uncleNode;
+    //RBNode<T,U> *parentNode = node;
+    //RBNode<T,U> *grandNode = node->parent;
 
     if(node->parent == nullptr){//if root node
         node->color = BLACK;
-        return node;
+        //return node;
     }
     /*
     if(node->parent->color == BLACK){
@@ -293,6 +297,11 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
     }*/
 
     int code = RB_tree_violated(node);
+
+    if(code == -1){
+        node->color = BLACK;
+        //return node;
+    }
 
     if(code == 0){
         return node;
@@ -353,6 +362,7 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
         }
     }
     */
+    return node;
 }
 
 
@@ -381,7 +391,10 @@ void printBT(const std::string& prefix, const RBNode<T,U>* node, bool isLeft)
         std::cout << (isLeft ? "├──" : "└──" );
 
         // print the value of the node
-        std::cout << node->key << std::endl;
+
+        if(node->color == BLACK) std::cout << node->key <<"BLACK " << std::endl;
+        else if(node->color == RED) std::cout << node->key <<" RED " << std::endl;
+        else if(node->color == DOUBLEBLACK) std::cout << node->key <<" DOUBLEBLACK " << std::endl;
 
         // enter the next tree level - left and right branch
         printBT( prefix + (isLeft ? "│   " : "    "), node->left, true);
@@ -404,23 +417,151 @@ RBNode<T,U> *maxNode(RBNode<T,U>*&node){
 }
 
 template<typename T, typename U>
+RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
+    int fixcode = RB_fix_doubleblack(node);
+
+    if(fixcode == 0){
+        return node;
+    }
+
+    if(fixcode == 1 || fixcode == 2){
+        //if REMOVE, make node->right nullptr
+        if(node->right->color == REMOVE){
+            delete node->right;
+        }
+        //if actual doubleblack, make node->right black
+        else if(node->right->color == DOUBLEBLACK){
+            node->right->color = BLACK;
+        }
+        int OGcolor = node->color;
+        if(fixcode == 1) {
+            node = rotate_right(node);
+        }
+        else if(fixcode == 2){
+            node->left = rotate_left(node->left);
+            node = rotate_right(node);
+        }
+        node->left->color = BLACK;
+        node->right->color = BLACK;
+        node->color = OGcolor;
+        return node;
+    }
+
+    if(fixcode == 3 || fixcode == 4){
+        if(node->left->color == REMOVE){
+            delete node->left;
+        }
+        else if(node->left->color == DOUBLEBLACK){
+            node->left->color = BLACK;
+        }
+        int OGcolor = node->color;
+        if(fixcode == 3){
+            node = rotate_left(node);
+        }
+        else if(fixcode == 4){
+            node->right = rotate_right(node->right);
+            node = rotate_left(node);
+        }
+        node->left->color = BLACK;
+        node->right->color = BLACK;
+        node->color = OGcolor;
+        return node;
+    }
+    
+
+    //sibling black, parent black, doubleblack on right
+    if(fixcode == 4){
+        if(node->right->color == REMOVE){
+            delete node->right;
+        }
+        else if(node->right->color == DOUBLEBLACK){
+            node->right->color = BLACK;
+        }
+        //set parent as doubleblack, sibling as red, and recurse up
+        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        node->left->color = RED;
+        return node;
+    }
+
+    //sibling black, parent red, doubleblack on right
+    if(fixcode == 5){
+        if(node->right->color == REMOVE){
+            delete node->right;
+        }
+        else if(node->right->color == DOUBLEBLACK){
+            node->right->color = BLACK;
+        }
+        //set parent as black, sibling as red
+        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        node->left->color = RED;
+        return node;
+    }
+
+    //sibling black, parent red, doubleblack on left
+    if(fixcode == 6){
+        if(node->left->color == REMOVE){
+            delete node->left;
+        }
+        else if(node->left->color == DOUBLEBLACK){
+            node->left->color = BLACK;
+        }
+        //set parent as black, sibling as red
+        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        node->right->color = RED;
+    }
+
+    //sibling black, parent black, doubleblack on left
+    if(fixcode == 7){
+        if(node->left->color == REMOVE){
+            delete node->left;
+        }
+        else if(node->left->color == DOUBLEBLACK){
+            node->left->color = BLACK;
+        }
+        //set parent as doubleblack, sibling as red, and recurse up
+        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        node->right->color = RED;
+        return node;
+    }
+
+    //sibling red, parent must be black, doubleblack on left
+    if(fixcode == 8){
+        node = rotate_right(node);
+        node->color = BLACK;
+        node->right->color = RED;
+        node->right = resolve_doubleblack(node->right);
+    }
+
+    if(fixcode == 9){
+        node = rotate_left(node);
+        node->color = BLACK;
+        node->left->color = RED;
+        node->left = resolve_doubleblack(node->left);
+    }
+    return node;
+    
+}
+
+
+template<typename T, typename U>
 RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
     //normal BST delete
     if(node == nullptr) return node;
 
     if(key < node->key) {
         node->left = remove(node->left, key);//go left
-        node->left->parent = node;
+        if(node->left != nullptr) node->left->parent = node;
     }
     if(key > node->key) {
         node->right = remove(node->right, key);//go right
-        node->right->parent = node;
+        if(node->right != nullptr) node->right->parent = node;
     }
     if(key == node->key){//node found
         
+        /*
         bool rightside, leftside = 0;
         RBNode<T,U> *parentNode = node->parent;
-        RBNode<T,U> *siblingNode;  
+        RBNode<T,U> *siblingNode; 
         if(parentNode->left == node){
             siblingNode = parentNode->right;
             leftside = 1;
@@ -429,18 +570,21 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
             siblingNode = parentNode->left;
             rightside = 0;
         }
+        */
 
         RBNode<T,U> *temp;
         if(node->left == nullptr && node->right == nullptr){//if leaf node
-            if(node->color == RED){//red leaf node
+            if(node->color == RED){//red leaf node, just delete
                 temp = node;
                 node = nullptr;
             }
             else if(node->color == BLACK){//black leaf node
-                node->color == REMOVE;//set color to remove, and fix later
+                node->color = REMOVE;//set color to remove, and fix later
             }
         }
         
+        //remove black node with red child
+        //promote red child to black
         else if(node->left == nullptr || node->right == nullptr){//if one child, must be black node with red leaf
             cout<<"removing node with 1 child"<<endl;
             cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
@@ -464,30 +608,18 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
             node->key = max_left_node->key;
             node->value = max_left_node->value;
             
-            //if max left node is red leaf
-            if(max_left_node->color == RED && (max_left_node->left == nullptr && max_left_node->right == nullptr)){
-                node->left = remove(node->left, max_left_node->key);//remove maxleftnode
-            }
-
-            //if max left node is black with right red child
-            if(max_left_node->color == BLACK && max_left_node->left != nullptr && max_left_node->right !=nullptr){
-                
-            }
-
-            //if max left node is black leaf
-
-            //delete maxleftnode by overwriting it with its left child
-            //max_left_node = max_left_node->left;
-            //auto __ = remove(node->left, max_left_node->key);//recursiely call remove function
-            //node->left = remove(node->left, max_left_node->key);
-            
+            //recurse down until in order predecessor
+            node->left = remove(node->left, max_left_node->key);            
         }
+
 
     }
     if(node == nullptr){//if removed the only node in tree
         return nullptr;
     }
     
+    //int fixcode = RB_fix_doubleblack(node);
+    node = resolve_doubleblack(node);
     return node;
     
 
@@ -497,7 +629,21 @@ template<typename T, typename U>
 void RBTree<T,U>::removeall(RBNode<T,U>*& node) {
     //TODO
     //for destructor
-        
+    if(node->left == nullptr && node->right == nullptr){//leaf node
+        delete node;
+        return;
+    } 
+    if(node->left == nullptr && node->right !=nullptr){//only right child
+        return removeall(node->right);
+    }
+    if(node->left !=nullptr && node->right == nullptr){//only left child
+        return removeall(node->left);
+    }
+    if(node->left !=nullptr && node->right !=nullptr){//two children
+        removeall(node->left);
+        removeall(node->right);
+        return;
+    }
 }
     
 

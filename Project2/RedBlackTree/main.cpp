@@ -20,7 +20,7 @@ int main () {
     cout<<"<< RB tree >>"<<endl<<endl;
 
     start_insert_remove = clock();
-   
+    /*
     tree.insert(16545, "yeonnamdong");
     tree.insert(54312, "sinsadong");
     
@@ -35,9 +35,21 @@ int main () {
     tree.insert(51211, "banghwadong");
     
     tree.remove(11243);
+    */
+    tree.insert(1, "apple");
+    tree.insert(2, "pear");
+    tree.insert(3, "bananna");
+    printBT(tree.root);
+    tree.insert(4, "mango");
+    printBT(tree.root);
+    tree.insert(5, "pineapple");
+    printBT(tree.root);
+    tree.insert(6, "durian");
+    printBT(tree.root);
     
     finish_insert_remove = clock();
 
+    /*
     cout<<"print inorder"<<endl;
     cout<<"_________________________"<<endl;
     tree.inorder(tree.root);
@@ -63,5 +75,6 @@ int main () {
     cout<<"_________________________"<<endl;
     cout<<"time for insert and remove: "<<(double)(finish_insert_remove-start_insert_remove)<<"ms"<<endl;   
     cout<<"time for search: "<<(double)(finish_search-start_search)<<"ms"<<endl;  
+    */
     return 0;
 }

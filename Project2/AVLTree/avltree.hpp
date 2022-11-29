@@ -273,7 +273,7 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
         return nullptr;
     }
 
-    //balance the tree after remoe
+    //balance the tree after remove
     node->height = max(getHeight(node->left), getHeight(node->right))+1;
 
     int balance = getBalance(node);
