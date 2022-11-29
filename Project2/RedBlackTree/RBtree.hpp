@@ -103,6 +103,7 @@ RBNode<T,U>* RBTree<T,U>::rotate_left(RBNode<T,U>*& node){
     node->parent = y;
 
     node->right = T2;
+    y->parent = nullptr;
     if(T2 != nullptr) T2->parent = node;
 
     //node->height = max(getHeight(node->left), getHeight(node->right))+1;
@@ -122,6 +123,7 @@ RBNode<T,U>* RBTree<T,U>::rotate_right(RBNode<T,U>*& node){
     node->parent = x;
 
     node->left = T2;
+    x->parent = nullptr;
     if(T2 != nullptr) T2->parent = node;
 
     //node->height = max(getHeight(node->left), getHeight(node->right))+1;
@@ -240,7 +242,7 @@ int RB_tree_violated(RBNode<T,U>*& node){//fixes two reds in a row
             }
         }
     }
-    else if(node->right!=nullptr){//right child exists
+    if(node->right!=nullptr){//right child exists
         if(node->right->color == RED){//right child is red
             if(node->right->left!=nullptr && node->right->left->color == RED){//RL - right child's left child is red
                 //7
@@ -329,7 +331,7 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
         return rotate_left(node);
     }
     if(code == 1 || code == 2 || code == 3 || code == 4){//both children red, just change colors
-        node->color = RED;
+        if(node->parent != nullptr) node->color = RED;
         node->left->color = BLACK;
         node->right->color = BLACK;
         return node;
@@ -392,7 +394,7 @@ void printBT(const std::string& prefix, const RBNode<T,U>* node, bool isLeft)
 
         // print the value of the node
 
-        if(node->color == BLACK) std::cout << node->key <<"BLACK " << std::endl;
+        if(node->color == BLACK) std::cout << node->key <<" BLACK " << std::endl;
         else if(node->color == RED) std::cout << node->key <<" RED " << std::endl;
         else if(node->color == DOUBLEBLACK) std::cout << node->key <<" DOUBLEBLACK " << std::endl;
 
@@ -577,6 +579,7 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
             if(node->color == RED){//red leaf node, just delete
                 temp = node;
                 node = nullptr;
+                delete temp;
             }
             else if(node->color == BLACK){//black leaf node
                 node->color = REMOVE;//set color to remove, and fix later
