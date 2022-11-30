@@ -187,7 +187,7 @@ U AVLTree<T,U>::search(AVLNode<T,U>*& node, const T& key) {
     if(node == NULL) return "";//value not found
     
     if(node->key == key) {//value found
-        cout<<"key : "<<key<<" found"<<endl;
+        //cout<<"key : "<<key<<" found"<<endl;
         return node->value;
     }
     if(key < node->key) return search(node->left, key);//go to left tree
@@ -246,8 +246,8 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             
         }
         else if(node->left == nullptr || node->right == nullptr){//if one child
-            cout<<"removing node with 1 child"<<endl;
-            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
+            //cout<<"removing node with 1 child"<<endl;
+            //cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             temp = node->left !=nullptr ? node->left : node->right;//if left is not null, set temp as left and vice versa
 
             node->key = temp->key;//copy values
@@ -262,8 +262,8 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             delete temp;
         }
         else{//if two children
-            cout<<"removing node with 2 children"<<endl;
-            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
+            //cout<<"removing node with 2 children"<<endl;
+            //cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             AVLNode<T,U> *max_left_node = maxNode(node->left);//largest of left subtree
 
             node->key = max_left_node->key;
@@ -321,23 +321,27 @@ void AVLTree<T,U>::removeall(AVLNode<T,U>*& node) {
     //for destructor
     if(node->left == nullptr && node->right == nullptr){//leaf node
         delete node;
-        delete node->left;
-        delete node->right;
+        node = nullptr;
         return;
     } 
     if(node->left == nullptr && node->right !=nullptr){//only right child
-        return removeall(node->right);
+        removeall(node->right);
+        delete node;
+        node = nullptr;
+        return;
     }
     if(node->left !=nullptr && node->right == nullptr){//only left child
-        return removeall(node->left);
+        removeall(node->left);
+        delete node;
+        node = nullptr;
+        return;
     }
     if(node->left !=nullptr && node->right !=nullptr){//two children
         removeall(node->left);
         
         removeall(node->right);
         delete node;
-        delete node->left;
-        delete node->right;
+        node = nullptr;
         return;
     }
         
