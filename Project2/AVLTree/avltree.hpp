@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <algorithm>
 #include <optional>
@@ -24,6 +25,9 @@ class AVLNode{
             right = nullptr;
             height = 1;
         }        
+        ~AVLNode<T,U>(){
+
+        }
         
 };
 
@@ -98,9 +102,9 @@ bool AVLTree<T,U>::remove(const T& key) {
 }
 
 template<typename T, typename U>
-AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of impalanced node as parameter
+AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of imbalanced node as parameter
     //TODO    
-    cout<<"rotate left"<<endl;
+    //cout<<"rotate left"<<endl;
     AVLNode<T,U> *y = node->right;
     AVLNode<T,U> *T2 = y->left;
 
@@ -116,7 +120,7 @@ AVLNode<T,U>* AVLTree<T,U>::rotate_left(AVLNode<T,U>*& node){ //parent of impala
 template<typename T, typename U>
 AVLNode<T,U>* AVLTree<T,U>::rotate_right(AVLNode<T,U>*& node){
     //TODO
-    cout<<"rotate right"<<endl;
+    //cout<<"rotate right"<<endl;
     AVLNode<T,U> *x = node->left;
     AVLNode<T,U> *T2 = x->right;
 
@@ -238,12 +242,13 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
         if(node->left == nullptr && node->right == nullptr){//if leaf node
             temp = node;
             node = nullptr;
+            delete temp;
+            
         }
         else if(node->left == nullptr || node->right == nullptr){//if one child
             cout<<"removing node with 1 child"<<endl;
             cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             temp = node->left !=nullptr ? node->left : node->right;//if left is not null, set temp as left and vice versa
-            
 
             node->key = temp->key;//copy values
             node->value = temp->value;
@@ -251,6 +256,9 @@ AVLNode<T,U>* AVLTree<T,U>::remove(AVLNode<T,U>*& node, const T& key) {
             node->left = temp->left;//move children pointers
             node->right = temp->right;
 
+            //if(node->left != nullptr) node->left = nullptr;
+            //else if(node->right != nullptr) node->right = nullptr;
+            
             delete temp;
         }
         else{//if two children
@@ -313,6 +321,8 @@ void AVLTree<T,U>::removeall(AVLNode<T,U>*& node) {
     //for destructor
     if(node->left == nullptr && node->right == nullptr){//leaf node
         delete node;
+        delete node->left;
+        delete node->right;
         return;
     } 
     if(node->left == nullptr && node->right !=nullptr){//only right child
@@ -323,7 +333,11 @@ void AVLTree<T,U>::removeall(AVLNode<T,U>*& node) {
     }
     if(node->left !=nullptr && node->right !=nullptr){//two children
         removeall(node->left);
+        
         removeall(node->right);
+        delete node;
+        delete node->left;
+        delete node->right;
         return;
     }
         

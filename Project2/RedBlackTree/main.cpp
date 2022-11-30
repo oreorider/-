@@ -21,7 +21,7 @@ int main () {
 
     start_insert_remove = clock();
     
-    tree.insert(16545, "yeonnamdong");
+    tree.insert(16545, "yeonnamdng");
     tree.insert(54312, "sinsadong");
     
     tree.insert(11243, "sillimdong");
@@ -43,6 +43,7 @@ int main () {
     tree.insert(1, "apple");
     tree.insert(2, "pear");
     tree.insert(3, "bananna");
+    tree.remove(-999);
     //printBT(tree.root);
 
     //cout<<"\n\n insert mango \n\n"<<endl;
@@ -70,9 +71,9 @@ int main () {
     cout<<"\n\nadd a bunch of stuff"<<endl;
     printBT(tree.root);
 
-    //cout<<"\n\nremove 10"<<endl;
+    cout<<"\n\nremove 10"<<endl;
     tree.remove(10);
-    //printBT(tree.root);
+    printBT(tree.root);
 
     //cout<<"\n\nremove 8"<<endl;
     tree.remove(8);

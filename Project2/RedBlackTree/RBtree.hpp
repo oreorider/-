@@ -29,7 +29,11 @@ class RBNode{
             right = nullptr;
             parent = nullptr;
         }        
-       
+        ~RBNode<T,U>(){
+            //delete parent;
+            //delete right;
+            //delete left;
+        }
         
 };
 
@@ -618,7 +622,6 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
     node = resolve_doublered(node);
     
     return node;
-    
 
 }
 
@@ -626,8 +629,12 @@ template<typename T, typename U>
 void RBTree<T,U>::removeall(RBNode<T,U>*& node) {
     //TODO
     //for destructor
+    
     if(node->left == nullptr && node->right == nullptr){//leaf node
         delete node;
+        delete node->left;
+        delete node->right;
+        delete node->parent;
         return;
     } 
     if(node->left == nullptr && node->right !=nullptr){//only right child
@@ -638,9 +645,15 @@ void RBTree<T,U>::removeall(RBNode<T,U>*& node) {
     }
     if(node->left !=nullptr && node->right !=nullptr){//two children
         removeall(node->left);
+        
         removeall(node->right);
+        delete node;
         return;
     }
+    //delete node;
+    //delete node->left;
+    //delete node->right;
+    //delete node->parent;
 }
     
 
