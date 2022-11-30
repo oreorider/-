@@ -29,6 +29,7 @@ class RBNode{
             right = nullptr;
             parent = nullptr;
         }        
+       
         
 };
 
@@ -64,6 +65,7 @@ class RBTree {
         RBNode<T,U>* rotate_left(RBNode<T,U>*& node);
         RBNode<T,U>* rotate_right(RBNode<T,U>*& node);
         RBNode<T,U>* resolve_doubleblack(RBNode<T,U>*& node);
+        RBNode<T,U>* resolve_doublered(RBNode<T,U>*& node);
         RBNode<T,U>* insert(RBNode<T,U>*& node, const T& key, const U& value);
         U search(RBNode<T,U>*& node, const T& key);
         RBNode<T,U>* remove(RBNode<T,U>*& node, const T& key);
@@ -177,13 +179,13 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
             if(node->right->right != nullptr) sibilng_right_child = true;
 
             //case 1
-            if(sibling_left_child && sibilng_right_child && node->left->left->color == RED && node->left->right->color == RED){
+            if(sibling_left_child && sibilng_right_child && node->right->left->color == RED && node->right->right->color == RED){
                 return 3;//RR
             }
-            if(sibling_left_child && !sibilng_right_child && node->left->left->color == RED){
-                return 4; //RL
+            if(sibling_left_child && !sibilng_right_child && node->right->left->color == RED){
+                return 10; //RL
             }
-            if(sibilng_right_child && !sibling_left_child && node->left->right->color == RED){
+            if(sibilng_right_child && !sibling_left_child && node->right->right->color == RED){
                 return 3; //RR
             }
             else{//sibling has black children or no children, case 2
@@ -205,6 +207,7 @@ int RB_fix_doubleblack(RBNode<T,U>*&node){//fix doubleblack for after removal
     return 0;
    
 }
+
 
 template<typename T, typename U>
 int RB_tree_violated(RBNode<T,U>*& node){//fixes two reds in a row
@@ -258,6 +261,49 @@ int RB_tree_violated(RBNode<T,U>*& node){//fixes two reds in a row
 }
 
 template<typename T, typename U>
+RBNode<T,U>* RBTree<T,U>::resolve_doublered(RBNode<T,U>*& node){
+    
+    int code = RB_tree_violated(node);
+
+    if(code == -1){
+        node->color = BLACK;
+        //return node;
+    }
+
+    if(code == 0){
+        return node;
+    }
+    if(code == 5){//LL - one child
+        node->color = RED;
+        node->left->color = BLACK;
+        return rotate_right(node);
+    }
+    if(code == 6){//LR - one child
+        node->color = RED;
+        node->left->right->color = BLACK;
+        node->left = rotate_left(node->left);
+        return rotate_right(node);
+    }
+    if(code == 7){//RL - one child
+        node->color = RED;
+        node->right->left->color = BLACK;
+        node->right = rotate_right(node->right);
+        return rotate_left(node);
+    }
+    if(code == 8){//RR - one child
+        node->color = RED;
+        node->right->color = BLACK;
+        return rotate_left(node);
+    }
+    if(code == 1 || code == 2 || code == 3 || code == 4){//both children red, just change colors
+        if(node->parent != nullptr) node->color = RED;
+        node->left->color = BLACK;
+        node->right->color = BLACK;
+        return node;
+    }
+}
+
+template<typename T, typename U>
 RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& value) {
     //TODO
     if(node == NULL){
@@ -297,73 +343,7 @@ RBNode<T,U>* RBTree<T,U>::insert(RBNode<T,U>*& node, const T& key, const U& valu
     if(node->parent->color == BLACK){
         return node;
     }*/
-
-    int code = RB_tree_violated(node);
-
-    if(code == -1){
-        node->color = BLACK;
-        //return node;
-    }
-
-    if(code == 0){
-        return node;
-    }
-    if(code == 5){//LL - one child
-        node->color = RED;
-        node->left->color = BLACK;
-        return rotate_right(node);
-    }
-    if(code == 6){//LR - one child
-        node->color = RED;
-        node->left->right->color = BLACK;
-        node->left = rotate_left(node->left);
-        return rotate_right(node);
-    }
-    if(code == 7){//RL - one child
-        node->color = RED;
-        node->right->left->color = BLACK;
-        node->right = rotate_right(node->right);
-        return rotate_left(node);
-    }
-    if(code == 8){//RR - one child
-        node->color = RED;
-        node->right->color = BLACK;
-        return rotate_left(node);
-    }
-    if(code == 1 || code == 2 || code == 3 || code == 4){//both children red, just change colors
-        if(node->parent != nullptr) node->color = RED;
-        node->left->color = BLACK;
-        node->right->color = BLACK;
-        return node;
-    }
-    /*
-    if(node->parent->color == RED){
-        uncleNode = grandNode->left == parentNode ? : grandNode->right : grandNode->left;
-        if(uncleNode != nullptr && uncleNode->color == RED){//if uncle is red
-            parentNode->color = BLACK;//change uncle and parent to black
-            uncleNode->color = BLACK;
-            grandNode->color = RED;
-        }
-        if(uncleNode->color == BLACK || uncleNode == NULL){//if uncle is black
-            //LL case
-            if(grandNode->left == parent && parent->left == node){
-                
-            }
-            //LR case
-            else if(grandNode->left == parent && parent->right == node){
-
-            }
-            //RR case
-            else if(grandNode->right == parent && parent->right == node){
-
-            }
-            //RL
-            else if(grandNode->right == parent && parent->left == node){
-
-            }
-        }
-    }
-    */
+    node = resolve_doublered(node);
     return node;
 }
 
@@ -430,6 +410,7 @@ RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
         //if REMOVE, make node->right nullptr
         if(node->right->color == REMOVE){
             delete node->right;
+            node->right = nullptr;
         }
         //if actual doubleblack, make node->right black
         else if(node->right->color == DOUBLEBLACK){
@@ -449,9 +430,10 @@ RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
         return node;
     }
 
-    if(fixcode == 3 || fixcode == 4){
+    if(fixcode == 3 || fixcode == 10){
         if(node->left->color == REMOVE){
             delete node->left;
+            node->left = nullptr;
         }
         else if(node->left->color == DOUBLEBLACK){
             node->left->color = BLACK;
@@ -460,7 +442,7 @@ RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
         if(fixcode == 3){
             node = rotate_left(node);
         }
-        else if(fixcode == 4){
+        else if(fixcode == 10){
             node->right = rotate_right(node->right);
             node = rotate_left(node);
         }
@@ -475,6 +457,7 @@ RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
     if(fixcode == 4){
         if(node->right->color == REMOVE){
             delete node->right;
+            node->right = nullptr;
         }
         else if(node->right->color == DOUBLEBLACK){
             node->right->color = BLACK;
@@ -489,33 +472,40 @@ RBNode<T,U>* RBTree<T,U>::resolve_doubleblack(RBNode<T,U>*& node){
     if(fixcode == 5){
         if(node->right->color == REMOVE){
             delete node->right;
+            node->right = nullptr;
         }
         else if(node->right->color == DOUBLEBLACK){
             node->right->color = BLACK;
         }
         //set parent as black, sibling as red
-        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        node->color = BLACK;
         node->left->color = RED;
         return node;
     }
 
     //sibling black, parent red, doubleblack on left
-    if(fixcode == 6){
+    if(fixcode == 7){
         if(node->left->color == REMOVE){
             delete node->left;
+            node->left = nullptr;
         }
         else if(node->left->color == DOUBLEBLACK){
             node->left->color = BLACK;
         }
-        //set parent as black, sibling as red
-        node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
+        //if parent red, set parent as black
+        //if parent black, set parent as doubleblack
+        //set sibling as red
+        if(node->color == RED) node->color = BLACK;
+        else if(node->color == BLACK && node->parent != nullptr) node->color = DOUBLEBLACK;//if not root, and node is black, set as DOUBLEBLACK
+        //node->color = (node->parent != nullptr) ? DOUBLEBLACK : BLACK;
         node->right->color = RED;
     }
 
     //sibling black, parent black, doubleblack on left
-    if(fixcode == 7){
+    if(fixcode == 6){
         if(node->left->color == REMOVE){
             delete node->left;
+            node->left = nullptr;
         }
         else if(node->left->color == DOUBLEBLACK){
             node->left->color = BLACK;
@@ -599,8 +589,10 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
 
             node->left = temp->left;//move children pointers
             node->right = temp->right;
-
+            if(node->left != nullptr) node->left = nullptr;
+            else if(node->right != nullptr) node->right = nullptr;
             delete temp;
+            
         }
         else{//if two children
             cout<<"removing node with 2 children"<<endl;
@@ -623,6 +615,8 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
     
     //int fixcode = RB_fix_doubleblack(node);
     node = resolve_doubleblack(node);
+    node = resolve_doublered(node);
+    
     return node;
     
 
