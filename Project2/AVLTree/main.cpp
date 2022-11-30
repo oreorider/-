@@ -89,7 +89,7 @@ int main () {
     finish_search = clock();
    
     //time for operation ( this case may have 0ms )
-    cout<<endl<<"print time for opration"<<endl;
+    cout<<endl<<"print  time for opration"<<endl;
     cout<<"_________________________"<<endl;
     cout<<"time for insert and remove: "<<(double)(finish_insert_remove-start_insert_remove)<<"ms"<<endl;   
     cout<<"time for search: "<<(double)(finish_search-start_search)<<"ms"<<endl;  

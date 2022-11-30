@@ -17,7 +17,7 @@ int main () {
 
     RBTree<int,string> tree;
     
-    cout<<"<< RB tree >>"<<endl<<endl;
+    cout<<"<< RBtree >>"<<endl<<endl;
 
     start_insert_remove = clock();
     
@@ -35,7 +35,7 @@ int main () {
     tree.insert(51211, "banghwadong");
     
     tree.remove(11243);
-    printBT(tree.root);
+    //printBT(tree.root);
     
 
     //add in ascending
@@ -104,7 +104,7 @@ int main () {
 
     tree.remove(5);//case 5
     printBT(tree.root);
-    finish_insert_remove = clock();
+    
 
     tree.remove(7);//case 3
     printBT(tree.root);
@@ -115,7 +115,7 @@ int main () {
     printBT(tree.root);
     cout<<"end"<<endl;
     */
-
+    finish_insert_remove = clock();
     /*
     for(int i=0; i<15; i++){
         tree.insert(i, "o");
