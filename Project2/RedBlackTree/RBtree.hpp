@@ -101,7 +101,7 @@ bool RBTree<T,U>::remove(const T& key) {
 template<typename T, typename U>
 RBNode<T,U>* RBTree<T,U>::rotate_left(RBNode<T,U>*& node){
     //TODO    
-    cout<<"rotate left"<<endl;
+    //cout<<"rotate left"<<endl;
     RBNode<T,U> *y = node->right;
     RBNode<T,U> *T2 = y->left;
 
@@ -121,7 +121,7 @@ RBNode<T,U>* RBTree<T,U>::rotate_left(RBNode<T,U>*& node){
 template<typename T, typename U>
 RBNode<T,U>* RBTree<T,U>::rotate_right(RBNode<T,U>*& node){
     //TODO
-    cout<<"rotate right"<<endl;
+    //cout<<"rotate right"<<endl;
     RBNode<T,U> *x = node->left;
     RBNode<T,U> *T2 = x->right;
 
@@ -359,7 +359,7 @@ U RBTree<T,U>::search(RBNode<T,U>*& node, const T& key) {
     if(node == NULL) return "";//value not found
     
     if(node->key == key) {//value found
-        cout<<"key : "<<key<<" found"<<endl;
+        //cout<<"key : "<<key<<" found"<<endl;
         return node->value;
     }
     if(key < node->key) return search(node->left, key);//go to left tree
@@ -583,8 +583,8 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
         //remove black node with red child
         //promote red child to black
         else if(node->left == nullptr || node->right == nullptr){//if one child, must be black node with red leaf
-            cout<<"removing node with 1 child"<<endl;
-            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
+            //cout<<"removing node with 1 child"<<endl;
+            //cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             temp = node->left !=nullptr ? node->left : node->right;//if left is not null, set temp as left and vice versa
             
 
@@ -599,8 +599,8 @@ RBNode<T,U>* RBTree<T,U>::remove(RBNode<T,U>*& node, const T& key) {
             
         }
         else{//if two children
-            cout<<"removing node with 2 children"<<endl;
-            cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
+            //cout<<"removing node with 2 children"<<endl;
+            //cout<<"key : "<<node->key<<"\tvalue : "<<node->value<<"\n"<<endl;
             RBNode<T,U> *max_left_node = maxNode(node->left);//largest of left subtree
 
             //update with key and value fom max left node
@@ -631,23 +631,29 @@ void RBTree<T,U>::removeall(RBNode<T,U>*& node) {
     //for destructor
     
     if(node->left == nullptr && node->right == nullptr){//leaf node
+        //node->parent = nullptr;
         delete node;
-        delete node->left;
-        delete node->right;
-        delete node->parent;
+        node = nullptr;
         return;
     } 
     if(node->left == nullptr && node->right !=nullptr){//only right child
-        return removeall(node->right);
+        removeall(node->right);
+        delete node;
+        node = nullptr;
+        return;
     }
     if(node->left !=nullptr && node->right == nullptr){//only left child
-        return removeall(node->left);
+        removeall(node->left);
+        delete node;
+        node = nullptr;
+        return;
+        
     }
     if(node->left !=nullptr && node->right !=nullptr){//two children
         removeall(node->left);
-        
         removeall(node->right);
         delete node;
+        node = nullptr;
         return;
     }
     //delete node;
