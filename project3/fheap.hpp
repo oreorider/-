@@ -94,7 +94,7 @@ FibonacciHeap<T>::~FibonacciHeap() {
 template <typename T>
 std::optional<T> FibonacciHeap<T>::get_min() const {
 	if(!min_node) 
-        cout<<"hello"<<endl;
+        //cout<<"hello"<<endl;
 		return std::nullopt;
 	else
 		return min_node->key;
@@ -109,13 +109,36 @@ void FibonacciHeap<T>::insert(const T& item) {
 template <typename T>
 void FibonacciHeap<T>::insert(std::shared_ptr<FibonacciNode<T>>& node) {
 	// TODO
+    if(size_ == 0){
+        size_+=1;
+        min_node = node;
+        return;
+    }
+    if(size_ == 1){
+        min_node->right = node;
+        node->right = min_node;
+        min_node->left = node;
+        node->left = min_node;
+        if(node->key < min_node->key){
+            min_node = node;
+        }
+        size_+1;
+        return;
+    }
+    else{
+        std::shared_ptr<FibonacciNode<T>> p = min_node->left.lock();
+        p->right = node;
+        node->right = min_node;
+        min_node->left = node;
+        size_+=1;
+    }
 
 }
 
 template <typename T>
 std::optional<T> FibonacciHeap<T>::extract_min() {
 	// TODO
-
+    
 	return std::nullopt;
 }
 
@@ -134,7 +157,7 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
 template <typename T>
 void FibonacciHeap<T>::consolidate() {
 	float phi = (1 + sqrt(5)) / 2.0;
-	int len = int(log(size_) / log(phi)) + 10;
+	int len = int(log(size_) / log(phi)) + 1;
 	// TODO
 
 	std::vector<std::shared_ptr<FibonacciNode<T>>> A(len, nullptr);
