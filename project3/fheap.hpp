@@ -94,6 +94,7 @@ FibonacciHeap<T>::~FibonacciHeap() {
 template <typename T>
 std::optional<T> FibonacciHeap<T>::get_min() const {
 	if(!min_node) 
+        cout<<"hello"<<endl;
 		return std::nullopt;
 	else
 		return min_node->key;
