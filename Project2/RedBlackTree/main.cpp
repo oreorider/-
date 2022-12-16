@@ -17,11 +17,11 @@ int main () {
 
     RBTree<int,string> tree;
     
-    cout<<"<< RB tree >>"<<endl<<endl;
+    cout<<"<< RBtree >>"<<endl<<endl;
 
     start_insert_remove = clock();
-   
-    tree.insert(16545, "yeonnamdong");
+    
+    tree.insert(16545, "yeonnamdng");
     tree.insert(54312, "sinsadong");
     
     tree.insert(11243, "sillimdong");
@@ -35,9 +35,112 @@ int main () {
     tree.insert(51211, "banghwadong");
     
     tree.remove(11243);
+    //printBT(tree.root);
     
-    finish_insert_remove = clock();
 
+    //add in ascending
+    /*
+    tree.insert(1, "apple");
+    tree.insert(2, "pear");
+    tree.insert(3, "bananna");
+    tree.remove(-999);
+    //printBT(tree.root);
+
+    //cout<<"\n\n insert mango \n\n"<<endl;
+    tree.insert(4, "mango");
+    //printBT(tree.root);
+
+    //cout<<"\n\n insert pineapple \n\n"<<endl;
+    tree.insert(5, "pineapple");
+    //printBT(tree.root);
+
+    //cout<<"\n\n insert durian \n\n"<<endl;
+    tree.insert(6, "durian");
+    //printBT(tree.root);
+    
+    //cout<<"\n\ninsert grape"<<endl;
+    tree.insert(7, "grape");
+    //printBT(tree.root);
+
+    //cout<<"\n\ninsert grapefruit"<<endl;
+    tree.insert(8, "grapefruit");
+    //printBT(tree.root);
+
+    tree.insert(9, "mangosteen");
+    tree.insert(10, "dragonfruit");
+    cout<<"\n\nadd a bunch of stuff"<<endl;
+    printBT(tree.root);
+
+    cout<<"\n\nremove 10"<<endl;
+    tree.remove(10);
+    printBT(tree.root);
+
+    //cout<<"\n\nremove 8"<<endl;
+    tree.remove(8);
+    //printBT(tree.root);
+
+    //cout<<"\n\nremove 3"<<endl;
+    tree.remove(3);
+    //printBT(tree.root);
+
+    //cout<<"\nnremove 7"<<endl;
+    tree.remove(7);
+    //printBT(tree.root);
+
+    cout<<"\n\nadding a bunch more items"<<endl;
+    tree.insert(10, "dragonfruit");
+    tree.insert(12, "kiwi");
+    tree.insert(13, "watermelon");
+    printBT(tree.root);
+    
+    //cout<<"\n\n remove 2"<<endl;
+    tree.remove(2);
+    //printBT(tree.root);
+
+    tree.insert(7, "grape");
+    printBT(tree.root);
+    tree.remove(10);
+    printBT(tree.root);
+
+    tree.remove(5);//case 5
+    printBT(tree.root);
+    
+
+    tree.remove(7);//case 3
+    printBT(tree.root);
+
+    tree.remove(1);
+    tree.remove(13);
+    tree.remove(4);//case 10
+    printBT(tree.root);
+    cout<<"end"<<endl;
+    */
+    finish_insert_remove = clock();
+    /*
+    for(int i=0; i<15; i++){
+        tree.insert(i, "o");
+    }
+    printBT(tree.root);
+    
+    tree.remove(4);//case 6, 7;
+    printBT(tree.root);
+    tree.remove(8);//case 2
+    printBT(tree.root);
+    tree.remove(10);//case 3
+    printBT(tree.root);
+    tree.insert(10, "o");
+    printBT(tree.root);
+    tree.remove(14);//case 1
+    printBT(tree.root);
+    for(int i=-10; i<0; i++){
+        tree.insert(i, "x");
+    }
+    printBT(tree.root);
+    tree.remove(-9);
+    printBT(tree.root);
+    */
+
+    
     cout<<"print inorder"<<endl;
     cout<<"_________________________"<<endl;
     tree.inorder(tree.root);
@@ -63,5 +166,6 @@ int main () {
     cout<<"_________________________"<<endl;
     cout<<"time for insert and remove: "<<(double)(finish_insert_remove-start_insert_remove)<<"ms"<<endl;   
     cout<<"time for search: "<<(double)(finish_search-start_search)<<"ms"<<endl;  
+    
     return 0;
 }

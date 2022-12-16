@@ -21,6 +21,7 @@ int main () {
 
     start_insert_remove = clock();
     
+    /*
     tree.insert(16545, "yeonnamdong");
     tree.insert(54312, "sinsadong");
     
@@ -34,30 +35,30 @@ int main () {
     tree.insert(59155, "gurodong");
     tree.insert(51211, "banghwadong");
     
-    tree.remove(11243);
+    tree.remove(11243);*/
     
-    for(int i=0; i<20; i++){
+    for(int i=0; i<10; i++){
         char insert = 'A' + i;
         tree.insert(i, std::string(1, insert));
         //if(i%5 == 0) tree.inorder(tree.root);
     }
-    printBT(tree.root);
+    //printBT(tree.root);
     
     //tree.inorder(tree.root);
-    cout<<"remove 5"<<endl;
+    //cout<<"remove 5"<<endl;
     tree.remove(5);
-    printBT(tree.root);
+    //printBT(tree.root);
     
-    tree.inorder(tree.root);
-    cout<<"remove 4"<<endl;
+    //tree.inorder(tree.root);
+    //cout<<"remove"<<endl;
     tree.remove(4);
-    printBT(tree.root);
-    tree.inorder(tree.root);
+    //printBT(tree.root)
+    //tree.inorder(tree.root);
 
-    cout<<"remove 3"<<endl;
+    //cout<<"remove 3"<<endl;
     tree.remove(3);
-    printBT(tree.root);
-    tree.inorder(tree.root);
+    //printBT(tree.root);
+    //tree.inorder(tree.root);
     
     
     finish_insert_remove = clock();
@@ -88,7 +89,7 @@ int main () {
     finish_search = clock();
    
     //time for operation ( this case may have 0ms )
-    cout<<endl<<"print time for opration"<<endl;
+    cout<<endl<<"print  time for opration"<<endl;
     cout<<"_________________________"<<endl;
     cout<<"time for insert and remove: "<<(double)(finish_insert_remove-start_insert_remove)<<"ms"<<endl;   
     cout<<"time for search: "<<(double)(finish_search-start_search)<<"ms"<<endl;  
