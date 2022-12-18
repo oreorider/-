@@ -17,7 +17,7 @@ int main(){
 
     std::vector<int> inserted;
 
-    for(int i = 0 ; i < 10 ; ++i) {
+    for(int i = 0 ; i < 11 ; ++i) {
         int temp = rand() % 100;
         heap.insert(temp);
         inserted.push_back(temp);

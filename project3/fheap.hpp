@@ -112,6 +112,8 @@ void FibonacciHeap<T>::insert(std::shared_ptr<FibonacciNode<T>>& node) {
     if(size_ == 0){
         size_+=1;
         min_node = node;
+        min_node->left = node;
+        min_node->right = node;
         return;
     }
     if(size_ == 1){
@@ -122,7 +124,7 @@ void FibonacciHeap<T>::insert(std::shared_ptr<FibonacciNode<T>>& node) {
         if(node->key < min_node->key){
             min_node = node;
         }
-        size_+1;
+        size_+=1;
         return;
     }
     else{
@@ -130,6 +132,10 @@ void FibonacciHeap<T>::insert(std::shared_ptr<FibonacciNode<T>>& node) {
         p->right = node;
         node->right = min_node;
         min_node->left = node;
+        node->left = p;
+        if(node->key < min_node->key){
+            min_node = node;
+        }
         size_+=1;
     }
 
@@ -138,8 +144,9 @@ void FibonacciHeap<T>::insert(std::shared_ptr<FibonacciNode<T>>& node) {
 template <typename T>
 std::optional<T> FibonacciHeap<T>::extract_min() {
 	// TODO
-    
-	return std::nullopt;
+    T returnKey = min_node->key;
+    remove(min_node);
+    return returnKey;
 }
 
 template <typename T>
@@ -151,7 +158,72 @@ void FibonacciHeap<T>::decrease_key(std::shared_ptr<FibonacciNode<T>>& x, T new_
 template <typename T>
 void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
 	// TODO
-	
+    if(size_ == 0){
+        //error
+        return;
+    }
+
+    std::shared_ptr<FibonacciNode<T>> leftChild;
+    std::shared_ptr<FibonacciNode<T>> rightChild;
+
+    if(size_ == 1){//only 1 root
+        if(x->degree == 0){//no children
+            x->right = nullptr;
+            x->left = nullptr;
+            x.reset();
+            return;
+        }
+        else{//has children
+            leftChild = x->child;
+            min_node = leftChild;
+
+            rightChild = leftChild; 
+            for(int i=0; i<x->degree; i++){
+                rightChild->parent = nullptr;
+                rightChild = rightChild->right;
+            }
+            rightChild = leftChild->left.lock();
+
+            rightChild->right = leftChild;
+            leftChild->left = rightChild;
+
+            x->child = nullptr;
+            x->right = nullptr;
+            x.reset();
+            return;
+        }
+    }
+    std::shared_ptr<FibonacciNode<T>> leftNode = x->left.lock();
+    std::shared_ptr<FibonacciNode<T>> rightNode = x->right;
+
+    
+
+
+    std::shared_ptr<FibonacciNode<T>> leftChild = x->child;
+    std::shared_ptr<FibonacciNode<T>> rightChild = x->child->left.lock();
+    if(x->degree != 0){
+        leftNode->right = leftChild;
+        leftChild->left = leftNode;
+
+        rightNode->left = rightChild;
+        rightChild->right = rightNode;
+    }
+    if(size_ == 1){//only 1 root
+        leftChild->left = rightChild;
+        rightchild->right = leftChild;
+    }
+    size_ = size_ - 1 + min_node->degree;
+    
+
+    /*
+	if(min_node->degree != 0){//at least one child
+        std::shared_ptr<FibonacciNode<T>> child = min_node->child;
+        for(int i=0; i<min_node->degree; i++){
+            leftNode->right = child;
+            child->left = leftNode;
+
+        }
+    }*/
 }
 
 template <typename T>
