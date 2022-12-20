@@ -1,5 +1,5 @@
 CC = g++
-CXXFLAGS = -Wall -std=c++17
+CXXFLAGS = -Wall -std=c++17 -ggdb3
 OBJS = main.o
 TARGET = test
 

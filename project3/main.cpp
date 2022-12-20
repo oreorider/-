@@ -16,7 +16,7 @@ int main(){
     std::cout<<(heap.get_min()==std::nullopt)<<std::endl;
     std::vector<int> inserted;
 
-    for(int i = 0 ; i < 11 ; ++i) {
+    for(int i = 0 ; i < 10 ; ++i) {
         int temp = rand() % 100;
         std::cout<<"pushing "<<temp<<std::endl;
         heap.insert(temp);
@@ -25,17 +25,22 @@ int main(){
 
 
     
-    std::cout<<heap.get_min().value()<<std::endl;
-    for(int i=0; i<5; i++){
-        std::cout<<heap.extract_min().value()<<std::endl;
-    }
+    //std::cout<<heap.get_min().value()<<std::endl;
+    std::cout<<heap.extract_min().value()<<std::endl;
+    auto decrease = heap.get_min_node()->child->left.lock()->child;
+    auto decrease2 = decrease->right;
+    heap.decrease_key(decrease, 2);
+    heap.decrease_key(decrease2, 4);
+    //for(int i=0; i<5; i++){
+    //    std::cout<<heap.extract_min().value()<<std::endl;
+    //}
     int min_value = heap.extract_min().value();
 
     std::cout<<min_value<<std::endl;
 
-    /*
-
-    // Dijkstra's Algorithm
+    
+    
+    //Dijkstra's Algorithm
 
     edges_t edges1 = {{0, 1, 3.0f},
                     {0, 2, 1.0f},
@@ -63,7 +68,7 @@ int main(){
         std::cout<<"previous: "<<std::get<0>(result[i].value())<<", ";
         std::cout<<"distance: "<<std::get<1>(result[i].value())<<std::endl;
     }
-    */
+    
     return 0;
     
 }

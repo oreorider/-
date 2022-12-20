@@ -27,7 +27,10 @@ class FibonacciNode {
 
         // Destructor
 		// You can implement your custom destructor.
-        ~FibonacciNode() = default;
+        ~FibonacciNode(){
+            right = nullptr;
+            child = nullptr;
+        }
 
         T key;
         size_t degree;
@@ -55,6 +58,7 @@ class FibonacciHeap : public PriorityQueue<T> {
         // Destructor
         ~FibonacciHeap();
 
+        void removeall(std::shared_ptr<FibonacciNode<T>>& node);
         void insert(const T& item) override;
 		void insert(std::shared_ptr<FibonacciNode<T>>& node);
 
@@ -89,6 +93,7 @@ template <typename T>
 FibonacciHeap<T>::~FibonacciHeap() {
 	// TODO
 	// NOTE: Be aware of memory leak or memory error.
+    removeall(min_node);
 }
 
 template <typename T>
@@ -104,6 +109,7 @@ template <typename T>
 void FibonacciHeap<T>::insert(const T& item) {
 	std::shared_ptr<FibonacciNode<T>> node = std::make_shared<FibonacciNode<T>>(item);
 	insert(node);
+    //node.reset();
 }
 
 template <typename T>
@@ -157,8 +163,15 @@ template <typename T>
 void FibonacciHeap<T>::decrease_key(std::shared_ptr<FibonacciNode<T>>& x, T new_key) {
 	// TODO
     x->key = new_key;
-    if(x->key < x->parent->key){//heap property violated
+    if(x->key < x->parent.lock()->key){//heap property violated
         cut(x);
+    }
+    auto iter = min_node;
+    for(int i=0; i<size_; i++){
+        if(iter->key < min_node->key){
+            min_node = iter;
+        }
+        iter = iter->right;
     }
 }
 
@@ -355,16 +368,66 @@ void FibonacciHeap<T>::merge(std::shared_ptr<FibonacciNode<T>>& x, std::shared_p
 template <typename T>
 void FibonacciHeap<T>::cut(std::shared_ptr<FibonacciNode<T>>& x) {
 	// TODO
+    std::shared_ptr<FibonacciNode<T>> parentptr = x->parent.lock();
     T value = x->key;
-    if(x->parent->marked == false){
-        x->parent->marked == true
+    if(parentptr == nullptr){
+        return;// do nothing if already top node
+    }
+
+    //cut out the node and add to the top
+    if(parentptr->degree == 1){//x no siblings
+        parentptr->child = nullptr;
+        parentptr->degree -= 1;
+        x->marked = false;
+        x->parent.reset();
+        insert(x);
+    }
+    else if(parentptr->degree != 1){//x has siblings
+        std::shared_ptr<FibonacciNode<T>> leftNode = x->left.lock();
+        std::shared_ptr<FibonacciNode<T>> rightNode = x->right;
+        leftNode->right = rightNode;
+        rightNode->left = leftNode;
+
+        parentptr->child = leftNode;
+        parentptr->degree -=1;
+        x->parent.reset();
+        x->marked = false;
+        insert(x);
+    }
+    
+    //check if recursive call neccessary
+    if(parentptr->marked == false){
+        parentptr->marked = true;
     }
     else{
-        recursive_cut(x->parent);
+        cut(parentptr);
     }
-    remove(x);
-    insert(std::shared_ptr<FibonacciNode<T>>(value));
     
+    
+}
+
+template <typename T>
+void FibonacciHeap<T>::removeall(std::shared_ptr<FibonacciNode<T>> & node){
+    /*
+    if(node->child == nullptr && node->right == nullptr){
+        delete node;
+        node.reset();
+        node = nullptr;
+        return;
+    }
+    if(node->child != nullptr){
+        removeall(node->child);
+    }
+    if(node->child == nullptr && node->right != nullptr){
+        for(int i=0; i<node->degree; i++){
+            if(node->child != nullptr){
+                removeall(node->child);
+            }
+            else{
+                
+            }
+        }
+    }*/
 }
 
 template <typename T>
@@ -372,5 +435,7 @@ void FibonacciHeap<T>::recursive_cut(std::shared_ptr<FibonacciNode<T>>& x) {
 	// TODO
 
 }
+
+
 
 #endif // __FHEAP_H_

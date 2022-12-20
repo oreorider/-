@@ -62,17 +62,34 @@ class Graph {
 std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>>
 dijkstra_shortest_path(Graph& g, vertex_t src) {
 	
-	std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>> M;
-
+	std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>> previous;
+	FibonacciHeap<std::tuple<vertex_t, edge_weight_t>> Q = {};
     // std::nullopt if vertex v is not reacheble from the source.
-    for(vertex_t v = 0; v < g.get_num_vertices(); v++) M[v] = std::nullopt;
 	std::vector<edge_weight_t> dist(g.get_num_vertices(), 1e10);
+	dist[src] = 0;
 
+    for(vertex_t v = 0; v < g.get_num_vertices(); v++){
+		if(v != src){
+			previous[v] = std::nullopt;
+		}
+		Q.insert(std::make_tuple(v, dist[v]));
+	}
+	while(Q.is_empty() == false){
+		auto u = Q.extract_min().value();
+		auto adj_list = g.adj_list(std::get<0>(u));
+		for(auto adj_edge : adj_list){
+			if(dist[std::get<0>(u)] + std::get<2>(adj_edge) < dist[std::get<1>(adj_edge)]){
+				dist[std::get<1>(adj_edge)] = dist[std::get<0>(u)] + std::get<2>(adj_edge);
+				previous[std::get<1>(adj_edge)] = u;
+				Q.decrease_key()
+			}
+		}
+	}
     // TODO
+	
+    
 
-    FibonacciHeap<int> heap = {};
-
-	return M;
+	return previous;
 }
 
 
