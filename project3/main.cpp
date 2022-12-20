@@ -14,22 +14,26 @@ int main(){
 
     FibonacciHeap<int> heap(3);
     std::cout<<(heap.get_min()==std::nullopt)<<std::endl;
-
     std::vector<int> inserted;
 
     for(int i = 0 ; i < 11 ; ++i) {
         int temp = rand() % 100;
+        std::cout<<"pushing "<<temp<<std::endl;
         heap.insert(temp);
         inserted.push_back(temp);
     }
 
-    std::cout<<heap.get_min().value()<<std::endl;
 
+    
+    std::cout<<heap.get_min().value()<<std::endl;
+    for(int i=0; i<5; i++){
+        std::cout<<heap.extract_min().value()<<std::endl;
+    }
     int min_value = heap.extract_min().value();
 
     std::cout<<min_value<<std::endl;
 
-
+    /*
 
     // Dijkstra's Algorithm
 
@@ -59,7 +63,7 @@ int main(){
         std::cout<<"previous: "<<std::get<0>(result[i].value())<<", ";
         std::cout<<"distance: "<<std::get<1>(result[i].value())<<std::endl;
     }
-
+    */
     return 0;
     
 }

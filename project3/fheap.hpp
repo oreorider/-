@@ -145,7 +145,11 @@ template <typename T>
 std::optional<T> FibonacciHeap<T>::extract_min() {
 	// TODO
     T returnKey = min_node->key;
+
     remove(min_node);
+    consolidate();
+
+
     return returnKey;
 }
 
@@ -165,15 +169,24 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
 
     std::shared_ptr<FibonacciNode<T>> leftChild;
     std::shared_ptr<FibonacciNode<T>> rightChild;
+    std::shared_ptr<FibonacciNode<T>> iter;
 
     if(size_ == 1){//only 1 root
         if(x->degree == 0){//no children
             x->right = nullptr;
-            x->left = nullptr;
             x.reset();
+            size_-=1;
             return;
         }
         else{//has children
+            
+            iter = x->child;
+            for(int i=0; i<x->degree; i++){
+                iter->parent = x->parent;
+                iter = iter->right;
+            }
+
+            /*
             leftChild = x->child;
             min_node = leftChild;
 
@@ -186,34 +199,44 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
 
             rightChild->right = leftChild;
             leftChild->left = rightChild;
+            */
 
-            x->child = nullptr;
-            x->right = nullptr;
-            x.reset();
+            x = iter;
+            size_-=1;
             return;
         }
     }
-    std::shared_ptr<FibonacciNode<T>> leftNode = x->left.lock();
-    std::shared_ptr<FibonacciNode<T>> rightNode = x->right;
+    else{//more than one root
+        std::shared_ptr<FibonacciNode<T>> leftNode = x->left.lock();
+        std::shared_ptr<FibonacciNode<T>> rightNode = x->right;
 
-    
+        if(x->degree == 0){//if no children
+            leftNode->right = rightNode;
+            rightNode->left = leftNode;
+            x = leftNode;
+            size_-=1;
+            return; 
+        }
+        else{//if children
+            leftChild = x->child;
+            rightChild = x->child->left.lock();
 
+            leftNode->right = leftChild;
+            leftChild->left = leftNode;
 
-    std::shared_ptr<FibonacciNode<T>> leftChild = x->child;
-    std::shared_ptr<FibonacciNode<T>> rightChild = x->child->left.lock();
-    if(x->degree != 0){
-        leftNode->right = leftChild;
-        leftChild->left = leftNode;
+            rightNode->left = rightChild;
+            rightChild->right = rightNode;
 
-        rightNode->left = rightChild;
-        rightChild->right = rightNode;
+            for(int i=0; i<x->degree; i++){
+                leftChild->parent = x->parent;
+                leftChild = leftChild->right;
+            }
+            size_ = size_ - 1 + x->degree;
+
+            x=leftChild;
+            return;
+        }
     }
-    if(size_ == 1){//only 1 root
-        leftChild->left = rightChild;
-        rightchild->right = leftChild;
-    }
-    size_ = size_ - 1 + min_node->degree;
-    
 
     /*
 	if(min_node->degree != 0){//at least one child
@@ -229,17 +252,101 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
 template <typename T>
 void FibonacciHeap<T>::consolidate() {
 	float phi = (1 + sqrt(5)) / 2.0;
-	int len = int(log(size_) / log(phi)) + 1;
+	int len = int(log(size_) / log(phi)) + 10;
+    std::vector<std::shared_ptr<FibonacciNode<T>>> A(len, nullptr);
+    int startingSize = size_;
 	// TODO
+    std::shared_ptr<FibonacciNode<T>> iter = min_node;
+    std::shared_ptr<FibonacciNode<T>> next_root;
 
-	std::vector<std::shared_ptr<FibonacciNode<T>>> A(len, nullptr);
+
+
+    for(int i=0; i<len; i++){
+        std::shared_ptr<FibonacciNode<T>> occupied = A[iter->degree];
+        if(occupied == nullptr || occupied == iter){//if array for 해당 degree is empty
+           A[iter->degree] = iter;//set
+           iter = iter->right;
+        }
+        else{//if array at index occupied, do merge
+            A[iter->degree] = nullptr;
+            next_root = iter->right;
+            std::shared_ptr<FibonacciNode<T>> leftNode;
+            if(iter->key < occupied->key){//iter on top, occupied goes under
+            
+                //occupied should get skipped over
+                leftNode = occupied->left.lock();
+                leftNode->right = occupied->right;
+                occupied->right->left = leftNode;
+
+                merge(iter, occupied);
+                if(A[iter->degree] == nullptr){//if degree index available, add and index iter
+                    A[iter->degree] = iter;
+                    iter = next_root;
+                }
+                else{//if degree index unavail, merge again to combine
+                    continue;
+                }
+
+            }
+
+            else{//iter goes under, occupied on top
+
+                //iter should be skipped over
+                leftNode = iter->left.lock();
+                leftNode->right = iter->right;
+                iter->right->left = leftNode;
+
+                merge(occupied, iter);
+                if(A[occupied->degree] == nullptr){
+                    A[occupied->degree] = occupied;
+                    iter = next_root;
+                }
+                else{
+                    iter = occupied;
+                }
+            }
+        }
+    }
+    
+	for(auto i : A){
+        if(i != nullptr){
+            min_node = i;//set min node to any random node
+            break;
+        }
+    }
+    for(auto i : A){
+        if(i != nullptr && i->key < min_node->key){
+            min_node = i;
+        }
+    }
+    return;
 
 }
 
-template <typename T>
-void FibonacciHeap<T>::merge(std::shared_ptr<FibonacciNode<T>>& x, std::shared_ptr<FibonacciNode<T>>& y) {
+template <typename T> 
+void FibonacciHeap<T>::merge(std::shared_ptr<FibonacciNode<T>>& x, std::shared_ptr<FibonacciNode<T>>& y) {//x is smaller, needs to go on top
+    //x is parent, y is child to be merged
 	// TODO
+    if(x->degree == 0){//no children
+        x->child = y;
+        y->parent = x;
+        y->right = y;
+        y->left = y;
+        x->degree+=1;
+    }
+    else{//children already exist
+        std::shared_ptr<FibonacciNode<T>> leftChild = x->child;
+        std::shared_ptr<FibonacciNode<T>> rightChild = leftChild->left.lock();
+        rightChild->right = y;
+        y->left = rightChild;
 
+        leftChild->left = y;
+        y->right = leftChild;
+
+        y->parent = x;
+        x->degree+=1;
+    }
+    size_-=1;
 }
 
 template <typename T>
