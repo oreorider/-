@@ -156,7 +156,10 @@ std::optional<T> FibonacciHeap<T>::extract_min() {
 template <typename T>
 void FibonacciHeap<T>::decrease_key(std::shared_ptr<FibonacciNode<T>>& x, T new_key) {
 	// TODO
-
+    x->key = new_key;
+    if(x->key < x->parent->key){//heap property violated
+        cut(x);
+    }
 }
 
 template <typename T>
@@ -200,9 +203,9 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
             rightChild->right = leftChild;
             leftChild->left = rightChild;
             */
-
+            size_ = size_ - 1 + x->degree;
             x = iter;
-            size_-=1;
+            
             return;
         }
     }
@@ -352,7 +355,16 @@ void FibonacciHeap<T>::merge(std::shared_ptr<FibonacciNode<T>>& x, std::shared_p
 template <typename T>
 void FibonacciHeap<T>::cut(std::shared_ptr<FibonacciNode<T>>& x) {
 	// TODO
-
+    T value = x->key;
+    if(x->parent->marked == false){
+        x->parent->marked == true
+    }
+    else{
+        recursive_cut(x->parent);
+    }
+    remove(x);
+    insert(std::shared_ptr<FibonacciNode<T>>(value));
+    
 }
 
 template <typename T>
