@@ -23,7 +23,7 @@ int main(){
         inserted.push_back(temp);
     }
 
-
+    //testsdfd
     
     //std::cout<<heap.get_min().value()<<std::endl;
     std::cout<<heap.extract_min().value()<<std::endl;
@@ -40,8 +40,8 @@ int main(){
 
     
     
-    //Dijkstra's Algorithm
-
+    //Dijkstra's Algorithmdd
+    /*
     edges_t edges1 = {{0, 1, 3.0f},
                     {0, 2, 1.0f},
                     {1, 2, 7.0f},
@@ -52,9 +52,18 @@ int main(){
 
 
     Graph g1(5, edges1, GraphType::UNDIRECTED);
+    */
 
+
+    edges_t edges2 = {{0,1,9.0f}, {0,4,1.0f}, {1,2,5.0f}, {2,3,11.0f}, {3,1,3.0f}, {3,4,2.0f}, {4,3,3.0f}, {4,0,1.0f},
+                        {5,6,9.0f}, {6,5,2.0f}, {6,7,8.0f}};
+    Graph g2(8, edges2, GraphType::DIRECTED);
     std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>> result
-            = dijkstra_shortest_path(g1, 2);
+           = dijkstra_shortest_path(g2, 4);
+
+    //std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>> result
+    //        = dijkstra_shortest_path(g1, 2);
+
 
     // Previous vertex of src are not checked.
     std::vector<vertex_t> previous = {2, 0, (vertex_t)-1, 2, 1}; 
@@ -63,8 +72,9 @@ int main(){
 
     // The printed result should be same as above.
 
-    for(size_t i = 0 ; i < 5 && i!=2 ; ++i) {
-        std::cout<<"[vertex i] ";
+    for(size_t i = 0 ; i < 8; ++i) {
+        if(i==4) continue;
+        std::cout<<"[vertex "<<i<<"] ";
         std::cout<<"previous: "<<std::get<0>(result[i].value())<<", ";
         std::cout<<"distance: "<<std::get<1>(result[i].value())<<std::endl;
     }

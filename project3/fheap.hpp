@@ -28,8 +28,9 @@ class FibonacciNode {
         // Destructor
 		// You can implement your custom destructor.
         ~FibonacciNode(){
-            right = nullptr;
-            child = nullptr;
+            right.reset();
+            child.reset();
+            //std::cout<<"node deleted"<<std::endl;
         }
 
         T key;
@@ -93,7 +94,11 @@ template <typename T>
 FibonacciHeap<T>::~FibonacciHeap() {
 	// TODO
 	// NOTE: Be aware of memory leak or memory error.
-    removeall(min_node);
+    //std::cout<<"heap destructor"<<std::endl;
+    while(size_ > 0){
+        auto x = extract_min();
+        //std::cout<<"node has value "<<x.value()<<std::endl;
+    }
 }
 
 template <typename T>
@@ -153,6 +158,9 @@ std::optional<T> FibonacciHeap<T>::extract_min() {
     T returnKey = min_node->key;
 
     remove(min_node);
+    if(size_ == 0){
+        return returnKey;
+    }
     consolidate();
 
 
@@ -163,6 +171,9 @@ template <typename T>
 void FibonacciHeap<T>::decrease_key(std::shared_ptr<FibonacciNode<T>>& x, T new_key) {
 	// TODO
     x->key = new_key;
+    if(x->parent.lock() == nullptr){
+        return;
+    }
     if(x->key < x->parent.lock()->key){//heap property violated
         cut(x);
     }
@@ -202,21 +213,9 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
                 iter = iter->right;
             }
 
-            /*
-            leftChild = x->child;
-            min_node = leftChild;
-
-            rightChild = leftChild; 
-            for(int i=0; i<x->degree; i++){
-                rightChild->parent = nullptr;
-                rightChild = rightChild->right;
-            }
-            rightChild = leftChild->left.lock();
-
-            rightChild->right = leftChild;
-            leftChild->left = rightChild;
-            */
             size_ = size_ - 1 + x->degree;
+            x->right = nullptr;
+            x.reset();
             x = iter;
             
             return;
@@ -229,6 +228,7 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
         if(x->degree == 0){//if no children
             leftNode->right = rightNode;
             rightNode->left = leftNode;
+            x.reset();
             x = leftNode;
             size_-=1;
             return; 
@@ -248,7 +248,7 @@ void FibonacciHeap<T>::remove(std::shared_ptr<FibonacciNode<T>>& x) {
                 leftChild = leftChild->right;
             }
             size_ = size_ - 1 + x->degree;
-
+            x.reset();
             x=leftChild;
             return;
         }
