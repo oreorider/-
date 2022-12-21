@@ -55,9 +55,10 @@ int main(){
     */
 
 
-    edges_t edges2 = {{0,1,9.0f}, {0,4,1.0f}, {1,2,5.0f}, {2,3,11.0f}, {3,1,3.0f}, {3,4,2.0f}, {4,3,3.0f}, {4,0,1.0f},
-                        {5,6,9.0f}, {6,5,2.0f}, {6,7,8.0f}};
-    Graph g2(8, edges2, GraphType::DIRECTED);
+    //edges_t edges_disconnect = {{0,1,9.0f}, {0,4,1.0f}, {1,2,5.0f}, {2,3,11.0f}, {3,1,3.0f}, {3,4,2.0f}, {4,3,3.0f}, {4,0,1.0f},
+    //                    {5,6,9.0f}, {6,5,2.0f}, {6,7,8.0f}};
+    edges_t edges2 = {{0,1,9.0f}, {0,4,1.0f}, {1,2,5.0f}, {2,3,11.0f}, {3,1,3.0f}, {3,4,2.0f}, {4,3,3.0f}, {4,0,1.0f},};
+    Graph g2(5, edges2, GraphType::DIRECTED);
     std::unordered_map<vertex_t, std::optional<std::tuple<vertex_t, edge_weight_t>>> result
            = dijkstra_shortest_path(g2, 4);
 
@@ -72,7 +73,7 @@ int main(){
 
     // The printed result should be same as above.
 
-    for(size_t i = 0 ; i < 8; ++i) {
+    for(size_t i = 0 ; i < 5; ++i) {
         if(i==4) continue;
         std::cout<<"[vertex "<<i<<"] ";
         std::cout<<"previous: "<<std::get<0>(result[i].value())<<", ";
